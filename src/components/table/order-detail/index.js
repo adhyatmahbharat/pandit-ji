@@ -121,11 +121,11 @@ export default function TableDetails({ ...props }) {
                           {row?.name}
                         </Typography>
                         <Stack spacing={1} direction="row" alignItems="center">
-                          {row.type === 'simple'
+                          {row.type === 'simple' || !row.variantName
                             ? null
                             : row.variantName.split('/').map((item, idx) => (
-                                <Typography key={item} variant="body2" sx={{ span: { textTransform: 'uppercase' } }}>
-                                  <b>{item}:</b> <span>{row.variant.split('/')[idx]}</span>
+                                <Typography key={idx} variant="body2" sx={{ span: { textTransform: 'uppercase' } }}>
+                                  <b>{item}:</b> <span>{row.variant?.split('/')?.[idx] || '-'}</span>
                                 </Typography>
                               ))}
                         </Stack>

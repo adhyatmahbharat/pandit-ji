@@ -69,8 +69,8 @@ export default function OrderList({ isLoading, row, isUser, isVendor }) {
               <BlurImage
                 priority
                 fill
-                alt={row.items[0]?.name}
-                src={row.items[0].cover || row.items[0]?.imageUrl}
+                alt={row.items?.[0]?.name ?? 'No name'}
+                src={row.items?.[0]?.cover ?? row.items?.[0]?.imageUrl ?? '/no-image.png'}
                 objectFit="cover"
               />
             </ThumbImgStyle>
@@ -79,7 +79,11 @@ export default function OrderList({ isLoading, row, isUser, isVendor }) {
             {isLoading ? (
               <Skeleton variant="text" width={120} sx={{ ml: 1 }} />
             ) : !isUser ? (
-              row.user?.firstName && row.user?.lastName ? `${row.user.firstName} ${row.user.lastName}` : row.user?.firstName || row.user?.lastName || 'N/A'
+              row.user?.firstName && row.user?.lastName ? (
+                `${row.user.firstName} ${row.user.lastName}`
+              ) : (
+                row.user?.firstName || row.user?.lastName || 'N/A'
+              )
             ) : (
               row.items[0]?.name
             )}
