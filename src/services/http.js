@@ -23,9 +23,9 @@ function getToken() {
   return '';
 }
 
-const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const apiRoot = process.env.NEXT_PUBLIC_API_URL;
 const http = axios.create({
-  baseURL: baseURL + `/api`
+  baseURL: apiRoot ? apiRoot + `/api` : undefined
   // withCredentials: true
 });
 

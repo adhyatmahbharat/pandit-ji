@@ -17,92 +17,118 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL;
 
 // ✅ Generate all static paths at build
 export async function generateStaticParams() {
-  const res = await fetch(`${baseUrl}/api/products-slugs`, {
-    next: { revalidate: 3600 } // Cache slug list for 1 hour
-  });
+  try {
+    if (!baseUrl) return [];
+    const res = await fetch(`${baseUrl}/api/products-slugs`, {
+      next: { revalidate: 3600 } // Cache slug list for 1 hour
+    });
 
-  const { data } = await res.json();
+    if (!res.ok) return [];
 
-  return (
-    data?.map((product) => ({
-      slug: product.slug
-    })) || []
-  );
+    const { data } = await res.json();
+
+    return data?.map((product) => ({ slug: product.slug })) || [];
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('generateStaticParams: failed to fetch products-slugs', err);
+    return [];
+  }
 }
 
 // ✅ Generate metadata per product
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const res = await fetch(`${baseUrl}/api/products/${slug}`, {
-    cache: 'force-cache' // Prefer cached
-  });
+  try {
+    if (!baseUrl) return {};
+    const res = await fetch(`${baseUrl}/api/products/${slug}`, {
+      cache: 'force-cache' // Prefer cached
+    });
 
-  const { data: product } = await res.json();
+    if (!res.ok) return {};
 
-  if (!product) return {};
+    const { data: product } = await res.json();
 
-  const images = product.images || [];
+    if (!product) return {};
 
-  return {
-    title: product.metaTitle || product.name,
-    description: product.metaDescription || product.shortDescription,
-    keywords: product.tags || [],
-    openGraph: {
-      title: product.name,
-      description: product.metaDescription,
-      images: images.map((v) => ({ url: v.url }))
-    }
-  };
+    const images = product.images || [];
+
+    return {
+      title: product.metaTitle || product.name,
+      description: product.metaDescription || product.shortDescription,
+      keywords: product.tags || [],
+      openGraph: {
+        title: product.name,
+        description: product.metaDescription,
+        images: images.map((v) => ({ url: v.url }))
+      }
+    };
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('generateMetadata: failed to fetch product', err);
+    return {};
+  }
 }
 
 // ✅ Main page component
 export default async function ProductDetail({ params }) {
   const { slug } = await params;
+  try {
+    if (!baseUrl) return notFound();
 
-  const res = await fetch(`${baseUrl}/api/products/${slug}`, {
-    next: { revalidate: 60 } // Revalidate every 60 seconds
-  });
+    const res = await fetch(`${baseUrl}/api/products/${slug}`, {
+      next: { revalidate: 60 } // Revalidate every 60 seconds
+    });
 
-  const response = await res.json();
+    if (!res.ok) return notFound();
 
-  if (!response?.success || !response?.data) {
-    notFound(); // Show 404 page
+    const response = await res.json();
+
+    if (!response?.success || !response?.data) return notFound();
+
+    const { data, totalRating, totalReviews, brand, category } = response;
+    const isSimpleProduct = data?.type === 'simple';
+    try {
+      return (
+        <Box>
+          <Container maxWidth="xl">
+            <Stack direction={'column'} gap={3}>
+              <HeaderBreadcrumbs
+                heading="Product Details"
+                links={[{ name: 'Home', href: '/' }, { name: 'Products', href: '/products' }, { name: data?.name }]}
+              />
+
+              <ProductDetails
+                data={data}
+                brand={brand}
+                slug={slug}
+                category={category}
+                totalRating={totalRating}
+                totalReviews={totalReviews}
+                isSimpleProduct={isSimpleProduct}
+              />
+              <ProductContentCard content={data.content} name={data.name} />
+
+              <ProductDetailTabs
+                product={{ description: data.content, _id: data._id }}
+                totalRating={totalRating}
+                totalReviews={totalReviews}
+              />
+
+              <ProductAdditionalInfo />
+
+              <RelatedProductsCarousel id={data._id} category={category?.slug} />
+            </Stack>
+          </Container>
+        </Box>
+      );
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('ProductDetail: render failed', err);
+      return notFound();
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('ProductDetail: failed to fetch product data', err);
+    return notFound();
   }
-
-  const { data, totalRating, totalReviews, brand, category } = response;
-  const isSimpleProduct = data?.type === 'simple';
-
-  return (
-    <Box>
-      <Container maxWidth="xl">
-        <Stack direction={'column'} gap={3}>
-          <HeaderBreadcrumbs
-            heading="Product Details"
-            links={[{ name: 'Home', href: '/' }, { name: 'Products', href: '/products' }, { name: data?.name }]}
-          />
-
-          <ProductDetails
-            data={data}
-            brand={brand}
-            slug={slug}
-            category={category}
-            totalRating={totalRating}
-            totalReviews={totalReviews}
-            isSimpleProduct={isSimpleProduct}
-          />
-          <ProductContentCard content={data.content} name={data.name} />
-
-          <ProductDetailTabs
-            product={{ description: data.content, _id: data._id }}
-            totalRating={totalRating}
-            totalReviews={totalReviews}
-          />
-
-          <ProductAdditionalInfo />
-
-          <RelatedProductsCarousel id={data._id} category={category?.slug} />
-        </Stack>
-      </Container>
-    </Box>
-  );
 }

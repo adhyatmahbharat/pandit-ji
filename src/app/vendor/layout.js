@@ -3,6 +3,8 @@ import React from 'react';
 // guard
 import VendorGuard from '@/guards/vendor';
 
+export const dynamic = 'force-dynamic';
+
 // layout
 import VendorLayout from 'src/layout/_vendor';
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
@@ -22,7 +24,8 @@ export async function generateMetadata() {
       icon: data.favicon?.url || 'https://adhyatmah.vercel.app/favicon.png'
     },
     openGraph: {
-      images: data.logoLight?.url || data.logoDark?.url || 'https://adhyatmah.vercel.app/opengraph-image.png?1c6a1fa20db2840f'
+      images:
+        data.logoLight?.url || data.logoDark?.url || 'https://adhyatmah.vercel.app/opengraph-image.png?1c6a1fa20db2840f'
     }
   };
 }

@@ -44,17 +44,20 @@ export default async function IndexPage() {
     ]);
 
   // Filter collections for the specific sections
-  const godStatueCollections = collections?.payload?.collections?.filter(c => 
-    c.handle === 'eco-friendly' || c.title.toLowerCase().includes('god statue')
-  ) || [];
-  
-  const hawanItemsCollections = collections?.payload?.collections?.filter(c => 
-    c.handle === 'bestseller-of-hawan-items' || c.title.toLowerCase().includes('hawan')
-  ) || [];
-  
-  const diwaliCollections = collections?.payload?.collections?.filter(c => 
-    c.handle === 'diwali' || c.title.toLowerCase().includes('diwali')
-  ) || [];
+  const godStatueCollections =
+    collections?.payload?.collections?.filter(
+      (c) => c.handle === 'eco-friendly' || c.title.toLowerCase().includes('god statue')
+    ) || [];
+
+  const hawanItemsCollections =
+    collections?.payload?.collections?.filter(
+      (c) => c.handle === 'bestseller-of-hawan-items' || c.title.toLowerCase().includes('hawan')
+    ) || [];
+
+  const diwaliCollections =
+    collections?.payload?.collections?.filter(
+      (c) => c.handle === 'diwali' || c.title.toLowerCase().includes('diwali')
+    ) || [];
 
   return (
     <Stack gap={5}>
@@ -83,7 +86,7 @@ export default async function IndexPage() {
         path="?top=1"
         data={topRatedProducts?.data || []}
       />
-      
+
       {/* New Collection Sections */}
       {godStatueCollections.length > 0 && (
         <CollectionWithProducts
@@ -92,7 +95,7 @@ export default async function IndexPage() {
           data={godStatueCollections}
         />
       )}
-      
+
       {hawanItemsCollections.length > 0 && (
         <CollectionWithProducts
           title="Best Seller Hawan Items"
@@ -100,7 +103,7 @@ export default async function IndexPage() {
           data={hawanItemsCollections}
         />
       )}
-      
+
       {diwaliCollections.length > 0 && (
         <CollectionWithProducts
           title="Diwali Collection"
@@ -108,7 +111,7 @@ export default async function IndexPage() {
           data={diwaliCollections}
         />
       )}
-      
+
       {Boolean(reviews?.data.length) && <Testimonials data={reviews?.data} />}
       <WhyUs />
       <SubscriptionModal />
