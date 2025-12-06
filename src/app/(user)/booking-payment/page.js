@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { 
-  Button, 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
-  CircularProgress, 
+import {
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  CircularProgress,
   Alert,
   TextField,
   FormControl,
@@ -44,11 +44,11 @@ export default function BookingPayment() {
         return;
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.adhyatmah.com';
       const response = await fetch(`${baseUrl}/api/createBookingPayment`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -115,11 +115,7 @@ export default function BookingPayment() {
 
           <FormControl fullWidth sx={{ mb: 3 }}>
             <InputLabel>Currency</InputLabel>
-            <Select
-              value={currency}
-              label="Currency"
-              onChange={(e) => setCurrency(e.target.value)}
-            >
+            <Select value={currency} label="Currency" onChange={(e) => setCurrency(e.target.value)}>
               <MenuItem value="INR">INR (Indian Rupee)</MenuItem>
               <MenuItem value="INR">INR (US Dollar)</MenuItem>
               <MenuItem value="EUR">EUR (Euro)</MenuItem>
@@ -137,12 +133,7 @@ export default function BookingPayment() {
             >
               {loading ? 'Processing...' : 'Pay Now'}
             </Button>
-            <Button
-              variant="outlined"
-              onClick={handleGoBack}
-              startIcon={<MdArrowBack />}
-              sx={{ minWidth: 150 }}
-            >
+            <Button variant="outlined" onClick={handleGoBack} startIcon={<MdArrowBack />} sx={{ minWidth: 150 }}>
               Go Back
             </Button>
           </Box>

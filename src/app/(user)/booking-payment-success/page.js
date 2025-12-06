@@ -33,11 +33,11 @@ export default function BookingPaymentSuccess() {
         return;
       }
 
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://api.adhyatmah.com';
       const response = await fetch(`${baseUrl}/api/verifyBookingPayment`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -125,18 +125,10 @@ export default function BookingPaymentSuccess() {
               {error}
             </Alert>
             <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-              <Button
-                variant="outlined"
-                startIcon={<MdArrowBack />}
-                onClick={handleGoBack}
-              >
+              <Button variant="outlined" startIcon={<MdArrowBack />} onClick={handleGoBack}>
                 Go Back
               </Button>
-              <Button
-                variant="contained"
-                startIcon={<MdHome />}
-                onClick={handleGoHome}
-              >
+              <Button variant="contained" startIcon={<MdHome />} onClick={handleGoHome}>
                 Go Home
               </Button>
             </Box>
@@ -161,11 +153,11 @@ export default function BookingPaymentSuccess() {
       <Card sx={{ maxWidth: 600, width: '100%' }}>
         <CardContent sx={{ textAlign: 'center', p: 4 }}>
           <MdCheckCircle size={80} color="green" style={{ marginBottom: 16 }} />
-          
+
           <Typography variant="h4" gutterBottom color="success.main">
             Payment Successful!
           </Typography>
-          
+
           <Typography variant="h6" gutterBottom>
             Your booking payment has been confirmed
           </Typography>
@@ -217,19 +209,10 @@ export default function BookingPaymentSuccess() {
           )}
 
           <Box sx={{ mt: 4, display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleViewBooking}
-              sx={{ minWidth: 150 }}
-            >
+            <Button variant="contained" color="primary" onClick={handleViewBooking} sx={{ minWidth: 150 }}>
               View My Bookings
             </Button>
-            <Button
-              variant="outlined"
-              onClick={handleGoHome}
-              sx={{ minWidth: 150 }}
-            >
+            <Button variant="outlined" onClick={handleGoHome} sx={{ minWidth: 150 }}>
               Go Home
             </Button>
           </Box>
