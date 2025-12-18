@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-
 export default function BookingPaymentCallbackPage() {
   const params = useSearchParams();
   const router = useRouter();

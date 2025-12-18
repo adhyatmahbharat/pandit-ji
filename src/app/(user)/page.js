@@ -7,21 +7,16 @@ import Categories from '@/components/_main/home/categories';
 import Vendors from '@/components/_main/home/shops';
 import Testimonials from 'src/components/_main/home/testimonials';
 import ProductList from '@/components/_main/home/products';
-import Collections from '@/components/_main/home/collections';
 import CollectionWithProducts from '@/components/_main/home/collection-with-products';
 import SubscriptionModal from 'src/components/_main/home/subscription';
-import WhyUs from '@/components/_main/home/why-us';
 
-// API services (direct fetch here or via service layer)
 const baseUrl = process.env.NEXT_PUBLIC_API_URL;
-
-export const revalidate = 60; // ISR: Revalidate every 60 seconds
+export const revalidate = 60;
 
 export default async function IndexPage() {
-  // Fetch all home data in parallel
   const [homeRes, categoriesRes, bestSellingRes, topRatedRes, featuredRes, vendorsRes, reviewsRes, collectionsRes] =
     await Promise.all([
-      fetch(`${baseUrl}/api/settings/home`, { next: { revalidate: 60 } }),
+      fetch(`${baseUrl}/api/getBanner`, { next: { revalidate: 60 } }),
       fetch(`${baseUrl}/api/home/categories`, { next: { revalidate: 60 } }),
       fetch(`${baseUrl}/api/home/products/best-selling`, { next: { revalidate: 60 } }),
       fetch(`${baseUrl}/api/home/products/top`, { next: { revalidate: 60 } }),
@@ -43,7 +38,11 @@ export default async function IndexPage() {
       collectionsRes.json()
     ]);
 
-  // Filter collections for the specific sections
+  // ✅ FIXED BANNER EXTRACTION
+  const homeBanners = banners?.payload?.banners?.homeBanners || [];
+  const subBanners = banners?.payload?.banners?.subBanners || [];
+
+  // Collection filters
   const godStatueCollections =
     collections?.payload?.collections?.filter(
       (c) => c.handle === 'eco-friendly' || c.title.toLowerCase().includes('god statue')
@@ -62,36 +61,40 @@ export default async function IndexPage() {
   return (
     <Stack gap={5}>
       <Stack gap={2}>
-        <Hero data={vendors?.payload?.vendors || []} banners={banners?.data || []} />
-        <TopBanners banners={banners?.data} />
+        <Hero data={vendors?.payload?.vendors || []} banners={homeBanners} />
+
+        <TopBanners banners={subBanners} />
       </Stack>
 
       <Categories data={categories?.data || []} isHome />
+
       <ProductList
         title="Featured Products"
-        description="Discover a curated selection of our most loved products — handpicked for quality, popularity, and style."
+        description="Discover a curated selection of our most loved products."
         path="?featured=true"
         data={featuredProducts?.data || []}
       />
+
       <ProductList
         title="Best Selling Products"
         description="Special products in this month"
         path="?top=1"
         data={bestSellingProducts?.data || []}
       />
+
       <Vendors data={vendors?.payload?.vendors || []} />
+
       <ProductList
         title="Top Collection"
-        description="Explore our best-selling collections, featuring the latest trends and timeless styles handpicked for every occasion."
+        description="Explore our best-selling collections."
         path="?top=1"
         data={topRatedProducts?.data || []}
       />
 
-      {/* New Collection Sections */}
       {godStatueCollections.length > 0 && (
         <CollectionWithProducts
           title="Best Seller God Statue"
-          description="Discover our most popular and divine god statues, crafted with devotion and artistic excellence."
+          description="Divine god statues crafted with devotion."
           data={godStatueCollections}
         />
       )}
@@ -99,7 +102,7 @@ export default async function IndexPage() {
       {hawanItemsCollections.length > 0 && (
         <CollectionWithProducts
           title="Best Seller Hawan Items"
-          description="Essential items for your sacred rituals and spiritual practices, chosen by our community."
+          description="Essential items for sacred rituals."
           data={hawanItemsCollections}
         />
       )}
@@ -107,13 +110,13 @@ export default async function IndexPage() {
       {diwaliCollections.length > 0 && (
         <CollectionWithProducts
           title="Diwali Collection"
-          description="Celebrate the festival of lights with our special Diwali collection of divine and decorative items."
+          description="Celebrate Diwali with divine decor."
           data={diwaliCollections}
         />
       )}
 
-      {Boolean(reviews?.data.length) && <Testimonials data={reviews?.data} />}
-      <WhyUs />
+      {Boolean(reviews?.data?.length) && <Testimonials data={reviews.data} />}
+
       <SubscriptionModal />
     </Stack>
   );

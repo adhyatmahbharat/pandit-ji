@@ -2,224 +2,302 @@
 import React from 'react';
 import Link from 'next/link';
 
-// mui
-import { alpha } from '@mui/material/styles';
-import { Typography, Container, Stack, Box, IconButton, Grid, Fab, Divider, useTheme } from '@mui/material';
+import { Box, Container, Grid, Stack, Typography, TextField, Button, Divider, IconButton } from '@mui/material';
 
-// components
-import NewsLetter from './newsletter';
-import Logo from '@/components/logo';
+import {
+  FaTruck,
+  FaHeadset,
+  FaTags,
+  FaShieldAlt,
+  FaExchangeAlt,
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn
+} from 'react-icons/fa';
 
-// icons
-import { FaFacebookF, FaInstagram, FaLinkedinIn } from 'react-icons/fa';
-import { MdOutlineLocationOn } from 'react-icons/md';
+import { MdOutlineLocationOn, MdOutlineCall } from 'react-icons/md';
 import { FiMail } from 'react-icons/fi';
-import { MdOutlineCall } from 'react-icons/md';
 
-const MAIN_LINKS = [
-  {
-    heading: 'Resources',
-    listText1: 'Contact us',
-    listLink1: '/contact',
-    listText2: 'Products',
-    listLink2: '/products',
-    listText3: 'Pandits',
-    listLink3: '/shops'
-  },
-  {
-    heading: 'About us',
-    listText1: 'About us',
-    listLink1: '/about',
-    listText2: 'Privacy policy',
-    listLink2: '/privacy-policy',
-    listText3: 'Term and conditions',
-    listLink3: '/terms-and-conditions',
-    listText4: 'Refund return policy',
-    listLink4: '/refund-return-policy',
-    listText5: 'Request Delete Account',
-    listLink5: '/delete-account'
-  }
+const FEATURES = [
+  { icon: <FaTruck />, title: 'Free Shipping', desc: 'On all orders' },
+  { icon: <FaHeadset />, title: '24/7 Support', desc: 'Dedicated support' },
+  { icon: <FaTags />, title: 'Big Savings', desc: 'Best prices' },
+  { icon: <FaShieldAlt />, title: 'Secure Payment', desc: '100% secure' },
+  { icon: <FaExchangeAlt />, title: 'Exchange Offer', desc: 'Easy exchange' }
 ];
 
 export default function Footer({ branding }) {
-  const theme = useTheme();
+  // Safe access to branding data with fallbacks
+  const address = branding?.contact?.address || 'Address not available';
+  const phone = branding?.contact?.whatsappNo || 'Phone not available';
+  const email = branding?.contact?.email || 'Email not available';
+
   return (
-    <Box
-      sx={{
-        bgcolor: (theme) => alpha(theme.palette.primary.light, 0.1),
-        py: 4,
-        mt: 7,
-        overflow: 'hidden',
-        position: 'relative',
-
-        display: {
-          md: 'block',
-          xs: 'none'
-        }
-      }}
-    >
+    <Box mt={8}>
+      {/* Newsletter Section */}
       <Container maxWidth="xl">
-        <Grid container spacing={4}>
-          <Grid size={3}>
-            <Stack spacing={3}>
-              <Logo branding={branding} />
-              {/* <Typography variant="body1" color="text.secondary">
-                Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-              </Typography> */}
-              <Stack>
-                <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <IconButton
-                    sx={{
-                      svg: {
-                        color: theme.palette.primary.main
-                      }
-                    }}
-                  >
-                    <MdOutlineLocationOn />
-                  </IconButton>
-                  <Typography variant="body1" color="text.secondary">
-                    {branding.contact.address}
-                  </Typography>
-                </Stack>
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="space-between"
+          py={4}
+          px={3}
+          flexWrap={{ xs: 'wrap', md: 'nowrap' }}
+        >
+          <Grid item xs={12} md="auto" mb={{ xs: 2, md: 0 }}>
+            <Typography variant="h6" fontWeight={600}>
+              🔔 Sign Up For Newsletter
+            </Typography>
+          </Grid>
 
-                <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <IconButton
-                    sx={{
-                      svg: {
-                        color: theme.palette.primary.main
-                      }
-                    }}
-                  >
-                    <MdOutlineCall />
-                  </IconButton>
-                  <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    component="a"
-                    href="/"
-                    sx={{
-                      ':hover': {
-                        color: 'primary.main'
-                      }
-                    }}
-                  >
-                    {branding.contact.whatsappNo}
-                  </Typography>
-                </Stack>
-                <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <IconButton
-                    sx={{
-                      svg: {
-                        color: theme.palette.primary.main
-                      }
-                    }}
-                  >
-                    <FiMail />
-                  </IconButton>
-                  <Typography
-                    variant="body1"
-                    color="text.secondary"
-                    component="a"
-                    href="/"
-                    sx={{
-                      ':hover': {
-                        color: 'primary.main'
-                      }
-                    }}
-                  >
-                    {branding.contact.email}
-                  </Typography>
-                </Stack>
-              </Stack>
+          <Grid item xs={12} md="auto">
+            <Stack direction="row" spacing={2} alignItems="center" width="100%">
+              <TextField
+                placeholder="Enter your email"
+                size="small"
+                fullWidth
+                sx={{
+                  bgcolor: '#fff',
+                  maxWidth: { xs: '100%', sm: 320 },
+                  borderRadius: 1
+                }}
+              />
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: '#ff9800',
+                  '&:hover': { bgcolor: '#fb8c00' },
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                Subscribe
+              </Button>
             </Stack>
           </Grid>
-          {MAIN_LINKS.map((item, idx) => (
-            <Grid size={2} key={idx}>
-              <Stack spacing={3}>
-                <Typography variant="h4" color="text.primary">
-                  {item.heading}
-                </Typography>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                    a: {
-                      '&:hover': {
-                        color: theme.palette.primary.main
-                      }
-                    }
-                  }}
-                >
-                  <Typography color="text.secondary" variant="subtitle1" component={Link} href={`${item.listLink1}`}>
-                    {item.listText1}
-                  </Typography>
-                  <Typography color="text.secondary" variant="subtitle1" component={Link} href={`${item.listLink2}`}>
-                    {item.listText2}
-                  </Typography>
-                  <Typography color="text.secondary" variant="subtitle1" component={Link} href={`${item.listLink3}`}>
-                    {item.listText3}
-                  </Typography>
-                  <Typography color="text.secondary" variant="subtitle1" component={Link} href={`${item.listLink4}`}>
-                    {item.listText4}
-                  </Typography>
-                  <Typography color="text.secondary" variant="subtitle1" component={Link} href={`${item.listLink5}`}>
-                    {item.listText5}
-                  </Typography>
+        </Grid>
+      </Container>
+
+      {/* Features Section */}
+      <Container maxWidth="xl">
+        <Grid container spacing={3} justifyContent="space-evenly" py={4} px={3} textAlign="center">
+          {FEATURES.map((item, i) => (
+            <Grid item xs={6} sm={4} md={2} key={i}>
+              <Stack spacing={1} alignItems="center">
+                <Box fontSize={40} color="#ff9800">
+                  {item.icon}
                 </Box>
+                <Typography fontWeight={600} fontSize={15}>
+                  {item.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary" fontSize={13}>
+                  {item.desc}
+                </Typography>
               </Stack>
             </Grid>
           ))}
+        </Grid>
+      </Container>
 
-          <Grid size={5}>
-            <Stack spacing={3}>
-              <Typography variant="h4" color="text.primary">
-                Join a Newsletter
+      <Divider sx={{ my: 4 }} />
+
+      {/* Main Footer Links */}
+      <Container maxWidth="xl">
+        <Grid container spacing={4} py={4} px={3} justifyContent="space-between">
+          <Grid item xs={12} sm={6} md={3} lg={2.5}>
+            <Typography color="text.primary" fontWeight={600} mb={2} fontSize={16}>
+              Resources
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1
+              }}
+            >
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/contact"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Contact Us
               </Typography>
-              <NewsLetter />
-              <Stack direction="row" alignItems="center" spacing={2}>
-                {branding?.socialLinks?.facebook && (
-                  <Fab
-                    size="small"
-                    color="primary"
-                    component={Link}
-                    href={branding.socialLinks.facebook}
-                    sx={{ zIndex: 1 }}
-                  >
-                    <FaFacebookF size={18} />
-                  </Fab>
-                )}
-                {branding?.socialLinks?.instagram && (
-                  <Fab
-                    size="small"
-                    color="primary"
-                    component={Link}
-                    href={branding.socialLinks.instagram}
-                    sx={{ zIndex: 1 }}
-                  >
-                    <FaInstagram size={18} />
-                  </Fab>
-                )}
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/products"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Products
+              </Typography>
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/shops"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Pandits
+              </Typography>
+            </Box>
+          </Grid>
 
-                {branding?.socialLinks?.linkedin && (
-                  <Fab
-                    size="small"
-                    color="primary"
-                    component={Link}
-                    href={branding.socialLinks.linkedin}
-                    sx={{ zIndex: 1 }}
-                  >
-                    <FaLinkedinIn size={18} />
-                  </Fab>
-                )}
+          <Grid item xs={12} sm={6} md={3} lg={2.5}>
+            <Typography fontWeight={600} mb={2} fontSize={16}>
+              Help
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1
+              }}
+            >
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/privacy-policy"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Privacy Policy
+              </Typography>
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/terms-and-conditions"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Terms & Conditions
+              </Typography>
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/refund-return-policy"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Refund Policy
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3} lg={2.5}>
+            <Typography fontWeight={700} mb={2} fontSize={16}>
+              My Account
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 1
+              }}
+            >
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/login"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Login
+              </Typography>
+              <Typography
+                color="#6b7280"
+                variant="body2"
+                component={Link}
+                href="/register"
+                sx={{
+                  fontSize: '14px',
+                  transition: 'color 0.2s',
+                  '&:hover': { color: '#f97316' }
+                }}
+              >
+                Register
+              </Typography>
+            </Box>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3} lg={4}>
+            <Typography fontWeight={600} mb={2} fontSize={16}>
+              Contact Information
+            </Typography>
+            <Stack spacing={1.5}>
+              <Stack direction="row" spacing={1} alignItems="flex-start">
+                <MdOutlineLocationOn style={{ marginTop: 2, flexShrink: 0, fontSize: 18 }} />
+                <Typography variant="body2" sx={{ fontSize: '14px', color: '#6b7280' }}>
+                  {address}
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <MdOutlineCall style={{ flexShrink: 0, fontSize: 18 }} />
+                <Typography variant="body2" sx={{ fontSize: '14px', color: '#6b7280' }}>
+                  {phone}
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={1} alignItems="center">
+                <FiMail style={{ flexShrink: 0, fontSize: 18 }} />
+                <Typography variant="body2" sx={{ fontSize: '14px', color: '#6b7280' }}>
+                  {email}
+                </Typography>
               </Stack>
             </Stack>
           </Grid>
         </Grid>
-        <Divider sx={{ my: 3 }} />
-        <Typography variant="body1" color="text.primary" textAlign="center">
-          © 2025 Adhyatmah. All rights reserved
-        </Typography>
+      </Container>
+
+      <Divider />
+
+      {/* Bottom Bar */}
+      <Container maxWidth="xl">
+        <Grid container alignItems="center" justifyContent="space-between" py={3} px={3}>
+          <Typography variant="body2" color="text.secondary">
+            © 2025 Adhyatmah. All rights reserved
+          </Typography>
+
+          <Stack direction="row" spacing={1}>
+            <IconButton size="small" sx={{ '&:hover': { color: '#ff9800' } }}>
+              <FaFacebookF />
+            </IconButton>
+            <IconButton size="small" sx={{ '&:hover': { color: '#ff9800' } }}>
+              <FaInstagram />
+            </IconButton>
+            <IconButton size="small" sx={{ '&:hover': { color: '#ff9800' } }}>
+              <FaLinkedinIn />
+            </IconButton>
+          </Stack>
+        </Grid>
       </Container>
     </Box>
   );

@@ -6,7 +6,8 @@ import { Toolbar } from '@mui/material';
 // components
 import Navbar from 'src/layout/_main/navbar';
 import Footer from '@/layout/_main/footer';
-import ActionBar from 'src/layout/_main/actionbar';
+import SecondaryHeader from '@/components/_main/secondary-header';
+import TopInfoBar from '@/components/_main/home/top-info-bar';
 
 // Meta information
 export async function generateMetadata() {
@@ -102,8 +103,9 @@ export default async function RootLayout({ children }) {
 
     return (
       <>
+        <TopInfoBar />
         <Navbar branding={branding} />
-        <ActionBar categories={categories} />
+        <SecondaryHeader />
         {children}
         <Toolbar sx={{ display: { xs: 'block', md: 'none' } }} />
         <Footer branding={branding} />
@@ -112,10 +114,12 @@ export default async function RootLayout({ children }) {
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn('RootLayout: unexpected error', err);
+
     return (
       <>
+        <TopInfoBar />
         <Navbar branding={null} />
-        <ActionBar categories={[]} />
+        <SecondaryHeader />
         {children}
         <Toolbar sx={{ display: { xs: 'block', md: 'none' } }} />
         <Footer branding={null} />

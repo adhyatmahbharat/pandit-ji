@@ -54,7 +54,29 @@ export default function Search({ ...props }) {
   const { mutate, isPending: isLoading } = useMutation({
     mutationFn: api.search,
     onSuccess: (data) => {
-      setstate((prev) => ({ ...prev, ...data }));
+      // Extract and transform products from the payload.results structure
+      const rawProducts = data?.payload?.results || [];
+
+      // Transform Shopify format to frontend format if needed
+      const products = rawProducts.map((product) => {
+        // Handle both formats: transformed (with _id, name) and Shopify (with id, title)
+        return {
+          _id: product._id || product.id,
+          name: product.name || product.title,
+          slug: product.slug || product.handle,
+          category: product.category || 'Product',
+          image: {
+            url: product.image?.url || product.featuredImage?.url || ''
+          },
+          salePrice: product.salePrice || parseFloat(product.priceRange?.minVariantPrice?.amount) || 0
+        };
+      });
+
+      console.log('Transformed search results:', products); // Debug log
+      setstate((prev) => ({ ...prev, products }));
+    },
+    onError: (error) => {
+      console.error('Search error:', error); // Debug log
     }
   });
 
@@ -123,7 +145,7 @@ export default function Search({ ...props }) {
           '& .MuiInputAdornment-root': { width: 100, mr: 0, svg: { mx: 'auto', color: 'primary.main' } }
         }}
       />
-      <Stack gap={1} direction="row" p={1}>
+      {/* <Stack gap={1} direction="row" p={1}>
         <FormControl fullWidth>
           <Stack gap={1}>
             <Typography variant="overline" component={'label'} htmlFor="shops">
@@ -202,10 +224,11 @@ export default function Search({ ...props }) {
             )}
           </Stack>
         </FormControl>
-      </Stack>
+      </Stack> */}
       <Divider />
       <Box className="scroll-main">
         <Box sx={{ height: mobile ? 'auto' : '342px', overflow: 'auto' }}>
+          {/* Show no data found only when initialized and no products */}
           {state.initialized && !isLoading && !Boolean(state.products.length) && (
             <>
               <Stack justifyContent="center" alignItems="center" sx={{ svg: { width: 300, height: 380 } }}>
@@ -214,81 +237,88 @@ export default function Search({ ...props }) {
             </>
           )}
 
-          {!isLoading && !Boolean(state.products.length) ? (
-            ''
-          ) : (
-            <>
-              <MenuList
-                sx={{
-                  pt: 0,
-                  mt: 1,
-                  overflow: 'auto',
-                  px: 1,
-                  gap: 1,
-                  display: 'flex',
+          {/* Show loading or results */}
+          {(isLoading || state.products.length > 0) && (
+            <MenuList
+              sx={{
+                pt: 0,
+                mt: 1,
+                overflow: 'auto',
+                px: 1,
+                gap: 1,
+                display: 'flex',
 
-                  flexDirection: 'column',
-                  li: {
-                    borderRadius: '8px',
-                    border: `1px solid transparent`,
-                    '&:hover, &.Mui-focusVisible, &.Mui-selected ': {
-                      border: (theme) => `1px solid ${theme.palette.primary.main}`,
-                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
-                      h6: { color: 'primary.main' }
-                    },
-                    '&.active': {
-                      border: (theme) => `1px solid ${theme.palette.primary.main}`,
-                      bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
-                      h6: { color: 'primary.main' }
-                    }
+                flexDirection: 'column',
+                li: {
+                  borderRadius: '8px',
+                  border: `1px solid transparent`,
+                  '&:hover, &.Mui-focusVisible, &.Mui-selected ': {
+                    border: (theme) => `1px solid ${theme.palette.primary.main}`,
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+                    h6: { color: 'primary.main' }
+                  },
+                  '&.active': {
+                    border: (theme) => `1px solid ${theme.palette.primary.main}`,
+                    bgcolor: (theme) => alpha(theme.palette.primary.main, 0.16),
+                    h6: { color: 'primary.main' }
                   }
-                }}
-                autoFocusItem={!focus}
-              >
-                {(isLoading ? Array.from(new Array(mobile ? 6 : 8)) : state.products).map((product) => (
-                  <MenuItem
-                    key={product?._id}
-                    className={Boolean(state.selected.filter((v) => v._id === product?._id)?.length) ? 'active' : ''}
-                    onClick={() => {
-                      if (!isLoading) handleListItemClick(multiSelect ? product : product?.slug);
-                    }}
-                  >
-                    <ListItemIcon>
-                      {isLoading ? (
-                        <Skeleton variant="circular" width={40} height={40} />
-                      ) : (
-                        <BlurImageAvatar
-                          alt={product.name}
-                          src={product.image.url}
-                          priority
-                          layout="fill"
-                          objectFit="cover"
-                        />
-                      )}
-                    </ListItemIcon>
-                    <ListItemText>
-                      <Stack direction="row" gap={1} alignItems={'center'} justifyContent={'space-between'}>
-                        <div>
-                          <Typography variant="subtitle1" color="text.primary" noWrap>
-                            {isLoading ? <Skeleton variant="text" width="200px" /> : product.name}
-                          </Typography>
-                          <Typography variant="body2" color="text.secondary" noWrap>
-                            {isLoading ? <Skeleton variant="text" width="200px" /> : product.category}
-                          </Typography>
-                        </div>
+                }
+              }}
+              autoFocusItem={!focus}
+            >
+              {(isLoading
+                ? Array.from(new Array(mobile ? 6 : 8)).map((_, index) => ({
+                    _id: `skeleton-${index}`,
+                    name: '',
+                    category: '',
+                    image: { url: '' },
+                    salePrice: 0,
+                    slug: ''
+                  }))
+                : state.products
+              ).map((product) => (
+                <MenuItem
+                  key={product?._id}
+                  className={Boolean(state.selected.filter((v) => v._id === product?._id)?.length) ? 'active' : ''}
+                  onClick={() => {
+                    if (!isLoading) handleListItemClick(multiSelect ? product : product?.slug);
+                  }}
+                >
+                  <ListItemIcon>
+                    {isLoading ? (
+                      <Skeleton variant="circular" width={40} height={40} />
+                    ) : (
+                      <BlurImageAvatar
+                        alt={product.name}
+                        src={product.image?.url || ''}
+                        priority
+                        layout="fill"
+                        objectFit="cover"
+                      />
+                    )}
+                  </ListItemIcon>
+                  <ListItemText>
+                    <Stack direction="row" gap={1} alignItems={'center'} justifyContent={'space-between'}>
+                      <div>
                         <Typography variant="subtitle1" color="text.primary" noWrap>
-                          {isLoading ? (
-                            <Skeleton variant="text" width="100px" />
-                          ) : (
-                            fCurrency(cCurrency(product.salePrice))
-                          )}
+                          {isLoading ? <Skeleton variant="text" width="200px" /> : product.name}
                         </Typography>
-                      </Stack>
-                    </ListItemText>
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </>
+                        <Typography variant="body2" color="text.secondary" noWrap>
+                          {isLoading ? <Skeleton variant="text" width="200px" /> : product.category}
+                        </Typography>
+                      </div>
+                      <Typography variant="subtitle1" color="text.primary" noWrap>
+                        {isLoading ? (
+                          <Skeleton variant="text" width="100px" />
+                        ) : (
+                          fCurrency(cCurrency(product.salePrice))
+                        )}
+                      </Typography>
+                    </Stack>
+                  </ListItemText>
+                </MenuItem>
+              ))}
+            </MenuList>
           )}
         </Box>{' '}
         {multiSelect && (

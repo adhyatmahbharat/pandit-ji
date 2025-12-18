@@ -144,7 +144,7 @@ const CheckoutMain = ({ isActiveStripe, isActivePaypal, paypalClientId, isActive
         toast.error('Stripe payment is not available');
         return;
       }
-      
+
       setProcessingTo(true);
       setCheckoutError(null);
 
@@ -201,81 +201,100 @@ const CheckoutMain = ({ isActiveStripe, isActivePaypal, paypalClientId, isActive
     [cart, values, couponCode]
   );
 
-  const handleRazorpayPayment = useCallback(
-    async () => {
-      if (!isActiveRazorpay) {
-        toast.error('Razorpay payment is not available');
-        return;
-      }
-      
-      setProcessingTo(true);
-      setCheckoutError(null);
+  const handleRazorpayPayment = useCallback(async () => {
+    if (!isActiveRazorpay) {
+      toast.error('Razorpay payment is not available');
+      return;
+    }
 
-      try {
-        // Create Razorpay order
-        const orderResponse = await api.createRazorpayOrder(
-          cCurrency(totalWithDiscount || checkout.total),
-          currency
-        );
+    setProcessingTo(true);
+    setCheckoutError(null);
 
-        if (orderResponse.success) {
-          // Initialize Razorpay payment
-          const options = {
-            key: razorpayKeyId,
-            amount: orderResponse.amount,
-            currency: orderResponse.currency,
-            name: 'Adhyatmah',
-            description: 'Order Payment',
-            order_id: orderResponse.order_id,
-            prefill: {
-              name: `${values.firstName} ${values.lastName}`,
-              email: values.email,
-              contact: values.phone || ''
-            },
-            theme: {
-              color: '#1C6BD2'
-            },
-            handler: function (response) {
-              // Payment successful
-              const items = cart.map((item) => ({ ...item }));
-              const totalItems = sum(items.map((i) => i.quantity));
+    try {
+      // Create Razorpay order
+      const orderResponse = await api.createRazorpayOrder(cCurrency(totalWithDiscount || checkout.total), currency);
 
-              mutate({
-                paymentMethod: 'Razorpay',
-                items,
-                user: values,
-                totalItems,
-                couponCode,
-                shipping: Number(shipping) || 0,
-                paymentId: response.razorpay_payment_id,
-                orderId: response.razorpay_order_id,
-                signature: response.razorpay_signature,
-                currency,
-                conversionRate: rate
-              });
-            },
-            modal: {
-              ondismiss: function() {
-                setProcessingTo(false);
-                toast.error('Payment cancelled by user');
-              }
+      if (orderResponse.success) {
+        // Initialize Razorpay payment
+        const options = {
+          key: razorpayKeyId,
+          amount: orderResponse.amount,
+          currency: orderResponse.currency,
+          name: 'Adhyatmah',
+          description: 'Order Payment',
+          order_id: orderResponse.order_id,
+          prefill: {
+            name: `${values.firstName} ${values.lastName}`,
+            email: values.email,
+            contact: values.phone || ''
+          },
+          theme: {
+            color: '#1C6BD2'
+          },
+          handler: function (response) {
+            // Payment successful - Place order immediately like Stripe
+            const items = cart.map((item) => ({ ...item }));
+            const totalItems = sum(items.map((i) => i.quantity));
+
+            const orderData = {
+              paymentMethod: 'Razorpay',
+              items,
+              user: values,
+              totalItems,
+              couponCode,
+              shipping: Number(shipping) || 0,
+              paymentId: response.razorpay_payment_id,
+              orderId: response.razorpay_order_id,
+              signature: response.razorpay_signature,
+              currency,
+              conversionRate: rate,
+              amount: cCurrency(totalWithDiscount || checkout.total)
+            };
+
+            // Place order directly like Stripe (without additional verification)
+            mutate(orderData);
+          },
+          modal: {
+            ondismiss: function () {
+              setProcessingTo(false);
+              toast.error('Payment cancelled by user');
             }
-          };
+          }
+        };
 
-          const razorpay = new window.Razorpay(options);
-          razorpay.open();
-        } else {
-          throw new Error('Failed to create Razorpay order');
-        }
-      } catch (err) {
-        setCheckoutError(err?.response?.data?.message || 'Payment failed');
-        toast.error(err?.response?.data?.message || 'Payment failed');
-      } finally {
-        setProcessingTo(false);
+        const razorpay = new window.Razorpay(options);
+
+        // Handle payment failure
+        razorpay.on('payment.failed', function (response) {
+          setProcessingTo(false);
+          setCheckoutError('Payment failed: ' + (response.error.description || 'Unknown error'));
+          toast.error('Payment failed: ' + (response.error.description || 'Unknown error'));
+        });
+
+        razorpay.open();
+      } else {
+        throw new Error(orderResponse.message || 'Failed to create Razorpay order');
       }
-    },
-    [values, totalWithDiscount, checkout.total, currency, couponCode, mutate, cCurrency, isActiveRazorpay, razorpayKeyId, cart, shipping, rate]
-  );
+    } catch (err) {
+      console.error('Razorpay payment error:', err);
+      setCheckoutError(err?.response?.data?.message || err.message || 'Payment failed');
+      toast.error(err?.response?.data?.message || err.message || 'Payment failed');
+      setProcessingTo(false);
+    }
+  }, [
+    values,
+    totalWithDiscount,
+    checkout.total,
+    currency,
+    couponCode,
+    mutate,
+    cCurrency,
+    isActiveRazorpay,
+    razorpayKeyId,
+    cart,
+    shipping,
+    rate
+  ]);
   const digitalProducts = cart.filter((item) => item.deliveryType === 'digital');
 
   useEffect(() => {

@@ -388,6 +388,7 @@ export const getBookingsByVendor = async (params) => {
 };
 
 // Vendor Booking History API (working endpoint)
+
 export const getBookingHistory = async () => {
   const { data: response } = await http.get(`/bookingHistory`);
   return response;
@@ -484,6 +485,10 @@ export const getProductReviews = async (pid) => {
 };
 export const addReview = async (payload) => {
   const { data } = await http.post(`/reviews`, payload);
+  return data;
+};
+export const addProductReview = async (payload) => {
+  const { data } = await http.post(`/products/reviews`, payload);
   return data;
 };
 
@@ -641,6 +646,7 @@ export const createBooking = async (bookingData) => {
 };
 
 // User Bookings
+
 export const getUserBookings = async () => {
   // Backend route responds with payload { ongoing:[], pending:[], upcoming:[], previous:[] }
   const { data } = await http.get(`/getBookings`);

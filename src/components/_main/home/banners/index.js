@@ -1,62 +1,34 @@
 'use client';
+
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-
-// mui
 import { Box, Card, Grid, Container, CardActionArea } from '@mui/material';
 
-export default function Index({ banners }) {
+export default function TopBanners({ banners = [] }) {
+  if (!banners.length) return null;
+
   return (
-    <Box
-      sx={{
-        display: { md: 'block', xs: 'none' }
-      }}
-    >
+    <Box sx={{ display: { xs: 'none', md: 'block' } }}>
       <Container maxWidth="xl">
         <Grid container spacing={2}>
-          <Grid size={{ lg: 6, md: 6, sm: 6, xs: 12 }} key={banners.banner1.image._id}>
-            <Card>
-              <CardActionArea
-                {...(Boolean(banners.banner1.link) && {
-                  component: Link,
-                  href: banners.banner1.link
-                })}
-              >
-                <Box sx={{ position: 'relative', height: 240 }}>
-                  <Image
-                    draggable="false"
-                    src={banners.banner1.image?.url || '/images/placeholder.jpg'}
-                    alt="banner"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                  />
-                </Box>
-              </CardActionArea>
-            </Card>
-          </Grid>
-          <Grid size={{ lg: 6, md: 6, sm: 6, xs: 12 }} key={banners.banner2.image._id}>
-            <Card>
-              <CardActionArea
-                {...(Boolean(banners.banner2.link) && {
-                  component: Link,
-                  href: banners.banner2.link
-                })}
-              >
-                <Box sx={{ position: 'relative', height: 240 }}>
-                  <Image
-                    draggable="false"
-                    src={banners.banner2.image.url || '/images/placeholder.jpg'}
-                    alt="banner"
-                    layout="fill"
-                    sizes="100vw"
-                    objectFit="cover"
-                  />
-                </Box>
-                {}
-              </CardActionArea>
-            </Card>
-          </Grid>
+          {banners.slice(0, 3).map((banner) => (
+            <Grid key={banner.id} size={{ md: 4, xs: 12 }}>
+              <Card>
+                <CardActionArea component={Link} href={banner.url || '#'}>
+                  <Box sx={{ position: 'relative', height: 280, width: '100%' }}>
+                    <Image
+                      src={banner.url || '/images/placeholder.jpg'}
+                      alt={banner.title || 'banner'}
+                      fill
+                      draggable={false}
+                      style={{ objectFit: 'fill' }}
+                    />
+                  </Box>
+                </CardActionArea>
+              </Card>
+            </Grid>
+          ))}
         </Grid>
       </Container>
     </Box>

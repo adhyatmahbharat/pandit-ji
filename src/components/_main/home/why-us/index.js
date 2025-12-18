@@ -49,7 +49,7 @@ export default function WhyUs() {
         }
       }}
     >
-      <Card
+      {/* <Card
         sx={{
           p: 3,
           borderRadius: '12px'
@@ -93,7 +93,7 @@ export default function WhyUs() {
             </React.Fragment>
           ))}
         </Stack>
-      </Card>
+      </Card> */}
     </Container>
   );
 }

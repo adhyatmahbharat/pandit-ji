@@ -6,17 +6,17 @@ import { useSelector } from 'react-redux';
 import toast from 'react-hot-toast';
 
 // mui
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Box, 
-  Button, 
-  Chip, 
-  Stack, 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Button,
+  Chip,
+  Stack,
+  Dialog,
+  DialogTitle,
+  DialogContent,
   DialogActions,
   TextField,
   Grid,
@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 
 // components
-import BookingPaymentDialog from '@/components/booking/booking-payment-dialog';
+import BookingPaymentDialog from '@/components/booking/booking-payment-dialog.js';
 
 // icons
 import { MdAccessTime, MdAttachMoney, MdDescription } from 'react-icons/md';
@@ -33,12 +33,17 @@ import { MdAccessTime, MdAttachMoney, MdDescription } from 'react-icons/md';
 export default function ServiceCard({ service, vendor, onBookService }) {
   const router = useRouter();
   const { isAuthenticated } = useSelector(({ user }) => user);
-  
+
   const [open, setOpen] = useState(false);
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
-  const [address, setAddress] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [country, setCountry] = useState('');
+  const [zip, setZip] = useState('');
   const [advancePayment, setAdvancePayment] = useState('');
   const [formError, setFormError] = useState('');
 
@@ -58,7 +63,6 @@ export default function ServiceCard({ service, vendor, onBookService }) {
       }
     }
   }, [open, selectedDate, selectedTime, advancePayment, service.price]);
-
 
   const handleBookService = () => {
     // Check if user is authenticated
@@ -81,8 +85,20 @@ export default function ServiceCard({ service, vendor, onBookService }) {
       setFormError('Please select a time');
       return;
     }
-    if (!address.trim()) {
-      setFormError('Please enter the service address');
+    if (!streetAddress.trim()) {
+      setFormError('Please enter the street address');
+      return;
+    }
+    if (!city.trim()) {
+      setFormError('Please enter the city');
+      return;
+    }
+    if (!state.trim()) {
+      setFormError('Please enter the state');
+      return;
+    }
+    if (!country.trim()) {
+      setFormError('Please enter the country');
       return;
     }
     if (!advancePayment || advancePayment < Math.round(service.price * 0.3)) {
@@ -109,12 +125,17 @@ export default function ServiceCard({ service, vendor, onBookService }) {
 
   const handlePaymentSuccess = (booking) => {
     setPaymentDialogOpen(false);
+
     onBookService(booking);
     // Reset form
-    setSelectedPackage('');
     setSelectedDate('');
     setSelectedTime('');
-    setAddress('');
+    setStreetAddress('');
+    setCity('');
+    setState('');
+    setCountry('');
+    setZip('');
+    setAdvancePayment('');
     setFormError('');
   };
 
@@ -127,17 +148,21 @@ export default function ServiceCard({ service, vendor, onBookService }) {
     setOpen(false);
     setFormError('');
     // Reset form fields
-    setSelectedPackage('');
     setSelectedDate('');
     setSelectedTime('');
-    setAddress('');
+    setStreetAddress('');
+    setCity('');
+    setState('');
+    setCountry('');
+    setZip('');
+    setAdvancePayment('');
   };
 
   return (
     <>
-      <Card 
-        sx={{ 
-          cursor: 'pointer', 
+      <Card
+        sx={{
+          cursor: 'pointer',
           transition: 'all 0.3s ease',
           '&:hover': {
             transform: 'translateY(-4px)',
@@ -159,7 +184,7 @@ export default function ServiceCard({ service, vendor, onBookService }) {
           <Typography variant="h6" gutterBottom color="primary">
             {service.poojaType}
           </Typography>
-          
+
           <Typography variant="body2" color="text.secondary" sx={{ mb: 2, minHeight: 40 }}>
             {service.description || 'Traditional pooja service with authentic rituals'}
           </Typography>
@@ -172,20 +197,10 @@ export default function ServiceCard({ service, vendor, onBookService }) {
               color="info"
               variant="outlined"
             />
-            <Chip
-              label={`₹${service.price}`}
-              size="small"
-              color="success"
-              variant="outlined"
-            />
+            <Chip label={`₹${service.price}`} size="small" color="success" variant="outlined" />
           </Stack>
 
-          <Button 
-            variant="contained" 
-            fullWidth 
-            size="small"
-            sx={{ borderRadius: 2 }}
-          >
+          <Button variant="contained" fullWidth size="small" sx={{ borderRadius: 2 }}>
             {isAuthenticated ? 'View Details & Book' : 'Login to Book Service'}
           </Button>
         </CardContent>
@@ -199,7 +214,7 @@ export default function ServiceCard({ service, vendor, onBookService }) {
             by {vendor.firstName} {vendor.lastName}
           </Typography>
         </DialogTitle>
-        
+
         <DialogContent>
           <Grid container spacing={3}>
             {/* Service Details */}
@@ -207,7 +222,7 @@ export default function ServiceCard({ service, vendor, onBookService }) {
               <Typography variant="h6" gutterBottom>
                 Service Details
               </Typography>
-              
+
               <Box sx={{ mb: 2 }}>
                 <Typography variant="subtitle2" color="text.secondary">
                   Description
@@ -221,9 +236,7 @@ export default function ServiceCard({ service, vendor, onBookService }) {
                 <Typography variant="subtitle2" color="text.secondary">
                   Duration
                 </Typography>
-                <Typography variant="body2">
-                  {service.duration}
-                </Typography>
+                <Typography variant="body2">{service.duration}</Typography>
               </Box>
 
               <Box sx={{ mb: 2 }}>
@@ -274,14 +287,54 @@ export default function ServiceCard({ service, vendor, onBookService }) {
 
               <TextField
                 fullWidth
-                label="Service Address"
-                multiline
-                rows={3}
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="Enter complete address where service is required"
+                label="Street Address"
+                value={streetAddress}
+                onChange={(e) => setStreetAddress(e.target.value)}
+                placeholder="Enter street address"
                 sx={{ mb: 2 }}
               />
+
+              <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="City"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="Enter city"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="State"
+                    value={state}
+                    onChange={(e) => setState(e.target.value)}
+                    placeholder="Enter state"
+                  />
+                </Grid>
+              </Grid>
+
+              <Grid container spacing={2} sx={{ mb: 2 }}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Country"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                    placeholder="Enter country"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Zip Code"
+                    value={zip}
+                    onChange={(e) => setZip(e.target.value)}
+                    placeholder="Enter zip code"
+                  />
+                </Grid>
+              </Grid>
 
               <TextField
                 fullWidth
@@ -291,10 +344,10 @@ export default function ServiceCard({ service, vendor, onBookService }) {
                 onChange={(e) => setAdvancePayment(e.target.value)}
                 sx={{ mb: 2 }}
                 InputProps={{
-                  startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>,
+                  startAdornment: <Typography sx={{ mr: 1 }}>₹</Typography>
                 }}
                 helperText={`Minimum: ₹${Math.round(service.price * 0.3)} (30% of service price)`}
-                inputProps={{ 
+                inputProps={{
                   min: Math.round(service.price * 0.3),
                   max: service.price
                 }}
@@ -336,13 +389,20 @@ export default function ServiceCard({ service, vendor, onBookService }) {
         </DialogContent>
 
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={handleClose}>
-            Cancel
-          </Button>
-          <Button 
-            variant="contained" 
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            variant="contained"
             onClick={handleBookService}
-            disabled={!selectedDate || !selectedTime || !address || !advancePayment || advancePayment < Math.round(service.price * 0.3)}
+            disabled={
+              !selectedDate ||
+              !selectedTime ||
+              !streetAddress ||
+              !city ||
+              !state ||
+              !country ||
+              !advancePayment ||
+              advancePayment < Math.round(service.price * 0.3)
+            }
           >
             Proceed to Payment
           </Button>
@@ -350,7 +410,7 @@ export default function ServiceCard({ service, vendor, onBookService }) {
       </Dialog>
 
       {/* Booking Payment Dialog */}
-      {paymentDialogOpen && selectedDate && selectedTime && address && (
+      {paymentDialogOpen && selectedDate && selectedTime && streetAddress && city && state && country && (
         <BookingPaymentDialog
           open={paymentDialogOpen}
           onClose={() => setPaymentDialogOpen(false)}
@@ -361,7 +421,13 @@ export default function ServiceCard({ service, vendor, onBookService }) {
             package: service.poojaType,
             dateTime: new Date(`${selectedDate}T${selectedTime}`).toISOString(),
             duration: service.duration,
-            address: address,
+            address: {
+              streetAddress: streetAddress,
+              city: city,
+              state: state,
+              country: country,
+              zip: zip
+            },
             pujaSamagri: service.description || 'Traditional pooja service with authentic rituals',
             paymentAmount: advancePayment || Math.round(service.price * 0.3),
             totalAmount: service.price

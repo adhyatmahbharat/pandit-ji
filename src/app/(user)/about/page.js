@@ -6,7 +6,8 @@ import { Container } from '@mui/material';
 // component import
 import HeaderBreadcrumbs from '@/components/header-breadcrumbs';
 import AboutUs from 'src/components/_main/about';
-
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 export default function Page() {
   return (
     <Container maxWidth="xl">

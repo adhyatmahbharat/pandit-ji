@@ -9,7 +9,7 @@ import Autoplay from 'embla-carousel-autoplay';
 
 import { Box, Card, Stack, Typography, LinearProgress } from '@mui/material';
 
-const AUTOPLAY_DELAY = 5000; // 5 seconds
+const AUTOPLAY_DELAY = 5000;
 
 function CarouselItem({ item }) {
   return (
@@ -17,25 +17,19 @@ function CarouselItem({ item }) {
       sx={{
         position: 'relative',
         width: '100%',
-        height: { xs: 125, sm: 225, md: 270, lg: 343 },
-        borderBottom: (theme) => '1px solid ' + theme.palette.divider,
+        height: { xs: 125, sm: 225, md: 350, lg: 400 },
         display: 'block'
       }}
-      {...(Boolean(item.link) && {
-        component: Link,
-        href: item.link
-      })}
+      component={item.url ? Link : 'div'}
+      href={item.url || undefined}
     >
       <Image
         priority
-        src={item.image.url}
-        alt="banner"
+        src={item.url || '/images/placeholder.jpg'}
+        alt={item.title || 'banner'}
         fill
-        style={{
-          objectFit: 'cover',
-          objectPosition: 'center'
-        }}
         draggable={false}
+        style={{ objectFit: 'fill' }}
       />
     </Box>
   );
@@ -43,14 +37,13 @@ function CarouselItem({ item }) {
 
 CarouselItem.propTypes = {
   item: PropTypes.shape({
-    image: {
-      url: PropTypes.string.isRequired,
-      _id: PropTypes.string.isRequired
-    }
+    id: PropTypes.string.isRequired,
+    title: PropTypes.string,
+    url: PropTypes.string.isRequired
   }).isRequired
 };
 
-export default function SingleSlideCarousel({ data }) {
+export default function SingleSlideCarousel({ data = [] }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
     Autoplay({ delay: AUTOPLAY_DELAY, stopOnInteraction: false })
   ]);
@@ -58,121 +51,54 @@ export default function SingleSlideCarousel({ data }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  const isEmpty = !Boolean(data?.length);
+  const isEmpty = !data.length;
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
-
     setSelectedIndex(emblaApi.selectedScrollSnap());
-    setProgress(0); // reset progress bar
-
-    const autoplay = emblaApi.plugins()?.autoplay;
-    if (autoplay) {
-      autoplay.reset(); // ⬅️ restart autoplay
-    }
+    setProgress(0);
+    emblaApi.plugins()?.autoplay?.reset();
   }, [emblaApi]);
+
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.on('select', onSelect);
     onSelect();
   }, [emblaApi, onSelect]);
 
-  // Progress animation
   useEffect(() => {
+    let raf;
     const start = Date.now();
 
-    let raf;
-
-    const updateProgress = () => {
+    const animate = () => {
       const elapsed = Date.now() - start;
-      const newProgress = Math.min((elapsed / AUTOPLAY_DELAY) * 100, 100);
-      setProgress(newProgress);
-      if (newProgress < 100) {
-        raf = requestAnimationFrame(updateProgress);
-      }
+      setProgress(Math.min((elapsed / AUTOPLAY_DELAY) * 100, 100));
+      raf = requestAnimationFrame(animate);
     };
 
-    updateProgress();
-
+    animate();
     return () => cancelAnimationFrame(raf);
   }, [selectedIndex]);
 
   return (
-    <Card
-      sx={{
-        width: '100%',
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        overflow: 'hidden',
-        flexDirection: 'column',
-        borderRadius: '12px',
-        height: { xs: 125, sm: 225, md: 270, lg: 343 }
-      }}
-    >
+    <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
       {isEmpty ? (
-        <Stack
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)'
-          }}
-        >
-          <Typography variant="h4" color="text.secondary">
-            Slides are not uploaded yet!
-          </Typography>
+        <Stack alignItems="center" justifyContent="center" height={200}>
+          <Typography color="text.secondary">No banners found</Typography>
         </Stack>
       ) : (
         <>
-          <Box
-            ref={emblaRef}
-            sx={{
-              width: '100%',
-              height: '100%',
-              overflow: 'hidden'
-            }}
-          >
-            <Box
-              className="embla__container"
-              sx={{
-                display: 'flex',
-                height: '100%'
-              }}
-            >
+          <Box ref={emblaRef} sx={{ overflow: 'hidden', objectFit: 'contain' }}>
+            <Box sx={{ display: 'flex' }}>
               {data.map((item) => (
-                <Box
-                  className="embla__slide"
-                  key={item.image._id}
-                  sx={{
-                    position: 'relative',
-                    flex: '0 0 100%',
-                    minWidth: 0
-                  }}
-                >
+                <Box key={item.id} sx={{ flex: '0 0 100%' }}>
                   <CarouselItem item={item} />
                 </Box>
               ))}
             </Box>
           </Box>
 
-          {/* Progress Bar */}
-          <LinearProgress
-            variant="determinate"
-            value={progress}
-            sx={{
-              width: '100%',
-              height: 4,
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              borderBottomLeftRadius: '12px',
-              borderBottomRightRadius: '12px',
-              '& .MuiLinearProgress-bar': {
-                transition: 'none' // disables abrupt animation
-              }
-            }}
-          />
+          <LinearProgress variant="determinate" value={progress} sx={{ height: 4 }} />
         </>
       )}
     </Card>
@@ -180,19 +106,5 @@ export default function SingleSlideCarousel({ data }) {
 }
 
 SingleSlideCarousel.propTypes = {
-  data: PropTypes.arrayOf(
-    PropTypes.shape({
-      cover: PropTypes.string.isRequired,
-      heading: PropTypes.string,
-      description: PropTypes.string,
-      btnPrimary: PropTypes.shape({
-        url: PropTypes.string.isRequired,
-        btnText: PropTypes.string.isRequired
-      }),
-      btnSecondary: PropTypes.shape({
-        url: PropTypes.string.isRequired,
-        btnText: PropTypes.string.isRequired
-      })
-    })
-  ).isRequired
+  data: PropTypes.array.isRequired
 };

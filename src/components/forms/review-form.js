@@ -37,7 +37,7 @@ export default function ProductDetailsReviewForm({ ...props }) {
 
   // Add review mutation
   const { mutate, isPending: isLoading } = useMutation({
-    mutationFn: api.addReview,
+    mutationFn: api.addProductReview,
     onSuccess: ({ data, user }) => {
       onAddingReview({ ...data, user });
       toast.success('Added review');

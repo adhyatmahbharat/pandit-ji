@@ -16,7 +16,6 @@ import {
   Grid
 } from '@mui/material';
 import { IoCheckmarkCircle, IoArrowBack } from 'react-icons/io5';
-
 export default function OrderSuccessPage() {
   const params = useSearchParams();
   const router = useRouter();
