@@ -13,7 +13,7 @@ export default function Categories(props) {
       <Stack gap={3}>
         {isHome && (
           <Stack>
-            <Typography variant="h2" color="text.primary">
+            <Typography variant="h4" color="text.primary">
               Categories
             </Typography>
             <Typography variant="body1" color="text.secondary">

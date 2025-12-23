@@ -2,12 +2,7 @@
 import React from 'react';
 
 // mui
-import { 
-  Typography, 
-  Container, 
-  Stack, 
-  Grid
-} from '@mui/material';
+import { Typography, Container, Stack, Grid } from '@mui/material';
 
 // components
 import ProductsCarousel from '@/components/carousels/products-grid-slider';
@@ -15,7 +10,7 @@ import ProductsCarousel from '@/components/carousels/products-grid-slider';
 export default function CollectionWithProducts({ data, title, description }) {
   // Transform API data to match ProductCard expected format
   const transformProductData = (products) => {
-    return products.map(product => ({
+    return products.map((product) => ({
       _id: product.id,
       name: product.title,
       slug: product.handle,
@@ -51,8 +46,8 @@ export default function CollectionWithProducts({ data, title, description }) {
                 <Stack gap={3}>
                   {/* Products Carousel */}
                   {collection.products && collection.products.length > 0 && (
-                    <ProductsCarousel 
-                      data={transformProductData(collection.products)} 
+                    <ProductsCarousel
+                      data={transformProductData(collection.products)}
                       isLoading={false}
                       query={`?collection=${collection.handle}`}
                     />

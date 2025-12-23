@@ -39,6 +39,10 @@ export default function HomeSettingsForm({ data: home }) {
     banner2: {
       link: home?.banner2?.link || '',
       image: home?.banner2?.image || null
+    },
+    banner3: {
+      link: home?.banner3?.link || '',
+      image: home?.banner3?.image || null
     }
   };
 
@@ -195,6 +199,7 @@ export default function HomeSettingsForm({ data: home }) {
               />
             </CardContent>
           </Card>
+
           {/* Banners */}
           <Grid container spacing={2}>
             {/* Banner 1 */}
@@ -265,6 +270,46 @@ export default function HomeSettingsForm({ data: home }) {
                     {touched.banner2?.image && errors.banner2?.image && (
                       <FormHelperText error>
                         {errors.banner2.image?._id || errors.banner2.image?.url || 'Image required'}
+                      </FormHelperText>
+                    )}
+                  </Stack>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* Banner 3 */}
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12 }}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">Banner 3</Typography>
+                  <Stack spacing={2} mt={2}>
+                    <Stack gap={1}>
+                      <Typography variant="overline" color="text.primary" htmlFor="banner3-link" component="label">
+                        {isLoading ? <Skeleton animation="wave" variant="text" width={120} /> : 'Banner link'}
+                      </Typography>
+                      {isLoading ? (
+                        <Skeleton variant="rounded" width="100%" height={56} />
+                      ) : (
+                        <TextField
+                          id="banner3-link"
+                          {...getFieldProps('banner3.link')}
+                          error={Boolean(touched.banner3?.link && errors.banner3?.link)}
+                          helperText={touched.banner3?.link && errors.banner3?.link}
+                        />
+                      )}
+                    </Stack>
+
+                    <UploadSingleFile
+                      file={values.banner3.image}
+                      onDrop={(acceptedFiles) => handleDrop(acceptedFiles, 'banner3.image')}
+                      accept="image/*"
+                      loading={uploadLoading['banner3.image']}
+                    />
+                    {touched.banner3?.image && errors.banner3?.image && (
+                      <FormHelperText error>
+                        {errors.banner3.image?._id || errors.banner3.image?.url || 'Image required'}
                       </FormHelperText>
                     )}
                   </Stack>

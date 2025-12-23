@@ -139,6 +139,7 @@ function ProductsCarousel({ data, isLoading, query }) {
             View All
           </Button>
         )}
+        <Box></Box>
       </Stack>
     </Paper>
   );

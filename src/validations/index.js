@@ -134,6 +134,15 @@ const homeSettingsSchema = Yup.object().shape({
         url: Yup.string().required()
       })
       .required('Banner 2 image is required')
+  }),
+  banner3: Yup.object().shape({
+    link: Yup.string().required('Banner 3 Link is required'),
+    image: Yup.object()
+      .shape({
+        _id: Yup.string().required(),
+        url: Yup.string().required()
+      })
+      .required('Banner 3 image is required')
   })
 });
 

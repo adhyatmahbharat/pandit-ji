@@ -376,7 +376,7 @@ export default function GeneralProfileForm({ user, isLoading }) {
                       <TextField {...getFieldProps('about')} fullWidth multiline minRows={4} maxRows={4} id="about" />
                     )}
                   </Stack>
-                  
+
                   {/* Vendor-specific fields */}
                   {user?.role === 'vendor' && (
                     <>
@@ -479,7 +479,7 @@ export default function GeneralProfileForm({ user, isLoading }) {
                       </Stack>
                     </>
                   )}
-                  
+
                   <Stack alignItems="end"></Stack>
                 </Stack>
               </CardContent>

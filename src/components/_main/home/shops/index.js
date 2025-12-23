@@ -15,8 +15,8 @@ export default function VendorComponent({ data }) {
     <Container maxWidth="xl">
       <Stack gap={3}>
         <Stack>
-          <Typography variant="h2" color="text.primary">
-            Best Pandits
+          <Typography variant="h4" color="text.primary">
+            Pandit Ji List
           </Typography>
           <Typography variant="body1" color="text.secondary">
             Our Highest Rated Pandits Where You Can Find Authentic Pooja Services
@@ -34,7 +34,7 @@ export default function VendorComponent({ data }) {
             </Typography>
           )}
         </Grid>
-        <Box sx={{ textAlign: 'right' }}>
+        <Box sx={{ textAlign: 'center' }}>
           <Button
             variant="outlined"
             color="secondary"

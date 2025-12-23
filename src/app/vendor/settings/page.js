@@ -25,10 +25,10 @@ export default function page() {
             name: 'Settings'
           }
         ]}
-        action={{
-          href: `/vendor/settings/shop`,
-          title: 'Pandit Profile Setting'
-        }}
+        // action={{
+        //   href: `/vendor/settings/shop`,
+        //   title: 'Pandit Profile Setting'
+        // }}
       />
       <AccountGeneral />
     </div>

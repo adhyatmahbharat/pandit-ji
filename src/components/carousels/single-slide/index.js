@@ -9,7 +9,7 @@ import Autoplay from 'embla-carousel-autoplay';
 
 import { Box, Card, Stack, Typography, LinearProgress } from '@mui/material';
 
-const AUTOPLAY_DELAY = 5000;
+const AUTOPLAY_DELAY = 5000; // 5 seconds
 
 function CarouselItem({ item }) {
   return (
@@ -17,19 +17,25 @@ function CarouselItem({ item }) {
       sx={{
         position: 'relative',
         width: '100%',
-        height: { xs: 125, sm: 225, md: 350, lg: 400 },
+        height: { xs: 125, sm: 225, md: 270, lg: 343 },
+        borderBottom: (theme) => '1px solid ' + theme.palette.divider,
         display: 'block'
       }}
-      component={item.url ? Link : 'div'}
-      href={item.url || undefined}
+      {...(Boolean(item.link) && {
+        component: Link,
+        href: item.link
+      })}
     >
       <Image
         priority
-        src={item.url || '/images/placeholder.jpg'}
-        alt={item.title || 'banner'}
+        src={item.image.url}
+        alt="banner"
         fill
+        style={{
+          objectFit: 'cover',
+          objectPosition: 'center'
+        }}
         draggable={false}
-        style={{ objectFit: 'fill' }}
       />
     </Box>
   );
@@ -37,13 +43,14 @@ function CarouselItem({ item }) {
 
 CarouselItem.propTypes = {
   item: PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    title: PropTypes.string,
-    url: PropTypes.string.isRequired
+    image: {
+      url: PropTypes.string.isRequired,
+      _id: PropTypes.string.isRequired
+    }
   }).isRequired
 };
 
-export default function SingleSlideCarousel({ data = [] }) {
+export default function SingleSlideCarousel({ data }) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true }, [
     Autoplay({ delay: AUTOPLAY_DELAY, stopOnInteraction: false })
   ]);
@@ -51,54 +58,121 @@ export default function SingleSlideCarousel({ data = [] }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [progress, setProgress] = useState(0);
 
-  const isEmpty = !data.length;
+  const isEmpty = !Boolean(data?.length);
 
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-    setProgress(0);
-    emblaApi.plugins()?.autoplay?.reset();
-  }, [emblaApi]);
 
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+    setProgress(0); // reset progress bar
+
+    const autoplay = emblaApi.plugins()?.autoplay;
+    if (autoplay) {
+      autoplay.reset(); // ⬅️ restart autoplay
+    }
+  }, [emblaApi]);
   useEffect(() => {
     if (!emblaApi) return;
     emblaApi.on('select', onSelect);
     onSelect();
   }, [emblaApi, onSelect]);
 
+  // Progress animation
   useEffect(() => {
-    let raf;
     const start = Date.now();
 
-    const animate = () => {
+    let raf;
+
+    const updateProgress = () => {
       const elapsed = Date.now() - start;
-      setProgress(Math.min((elapsed / AUTOPLAY_DELAY) * 100, 100));
-      raf = requestAnimationFrame(animate);
+      const newProgress = Math.min((elapsed / AUTOPLAY_DELAY) * 100, 100);
+      setProgress(newProgress);
+      if (newProgress < 100) {
+        raf = requestAnimationFrame(updateProgress);
+      }
     };
 
-    animate();
+    updateProgress();
+
     return () => cancelAnimationFrame(raf);
   }, [selectedIndex]);
 
   return (
-    <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+    <Card
+      sx={{
+        width: '100%',
+        position: 'relative',
+        display: 'flex',
+        alignItems: 'center',
+        overflow: 'hidden',
+        flexDirection: 'column',
+        borderRadius: '12px',
+        height: { xs: 125, sm: 225, md: 270, lg: 343 }
+      }}
+    >
       {isEmpty ? (
-        <Stack alignItems="center" justifyContent="center" height={200}>
-          <Typography color="text.secondary">No banners found</Typography>
+        <Stack
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)'
+          }}
+        >
+          <Typography variant="h4" color="text.secondary">
+            Slides are not uploaded yet!
+          </Typography>
         </Stack>
       ) : (
         <>
-          <Box ref={emblaRef} sx={{ overflow: 'hidden', objectFit: 'contain' }}>
-            <Box sx={{ display: 'flex' }}>
+          <Box
+            ref={emblaRef}
+            sx={{
+              width: '100%',
+              height: '100%',
+              overflow: 'hidden'
+            }}
+          >
+            <Box
+              className="embla__container"
+              sx={{
+                display: 'flex',
+                height: '100%'
+              }}
+            >
               {data.map((item) => (
-                <Box key={item.id} sx={{ flex: '0 0 100%' }}>
+                <Box
+                  className="embla__slide"
+                  key={item.image._id}
+                  sx={{
+                    position: 'relative',
+                    flex: '0 0 100%',
+                    minWidth: 0
+                  }}
+                >
                   <CarouselItem item={item} />
                 </Box>
               ))}
             </Box>
           </Box>
 
-          <LinearProgress variant="determinate" value={progress} sx={{ height: 4 }} />
+          {/* Progress Bar */}
+          <LinearProgress
+            variant="determinate"
+            value={progress}
+            sx={{
+              width: '100%',
+              height: 4,
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              borderBottomLeftRadius: '12px',
+              borderBottomRightRadius: '12px',
+              '& .MuiLinearProgress-bar': {
+                transition: 'none' // disables abrupt animation
+              }
+            }}
+          />
         </>
       )}
     </Card>
@@ -106,5 +180,19 @@ export default function SingleSlideCarousel({ data = [] }) {
 }
 
 SingleSlideCarousel.propTypes = {
-  data: PropTypes.array.isRequired
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      cover: PropTypes.string.isRequired,
+      heading: PropTypes.string,
+      description: PropTypes.string,
+      btnPrimary: PropTypes.shape({
+        url: PropTypes.string.isRequired,
+        btnText: PropTypes.string.isRequired
+      }),
+      btnSecondary: PropTypes.shape({
+        url: PropTypes.string.isRequired,
+        btnText: PropTypes.string.isRequired
+      })
+    })
+  ).isRequired
 };

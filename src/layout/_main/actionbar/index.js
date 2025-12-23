@@ -14,10 +14,11 @@ import DesktopMenuList from '@/components/lists/desktop-menu-list';
 
 const navlinks = [
   { title: 'Home', path: '/' },
+  { title: 'About', path: '/about' },
+  { title: 'Brands', path: '/brands' },
   { title: 'Products', path: '/products' },
   { title: 'Pandits', path: '/shops' },
-  { title: 'Contact', path: '/contact' },
-  { title: 'About', path: '/about' }
+  { title: 'Reach Us', path: '/contact' }
 ];
 
 export default function Navbar({ categories }) {
@@ -46,7 +47,7 @@ export default function Navbar({ categories }) {
       sx={{
         boxShadow: 'none',
         position: 'sticky',
-        top: 80,
+        top: 110,
         zIndex: 999,
         bgcolor: (theme) => theme.palette.primary.main,
         display: { md: 'flex', xs: 'none' },
@@ -85,7 +86,16 @@ export default function Navbar({ categories }) {
 
           <Stack gap={2} direction="row">
             {navlinks.map((item) => (
-              <Typography key={item.title} variant="subtitle1" color="common.white" component={Link} href={item.path}>
+              <Typography
+                key={item.title}
+                variant="subtitle1"
+                color="common.white"
+                component={Link}
+                href={item.path}
+                size="large"
+                sx={{ textDecoration: 'none' }}
+                fontWeight={700}
+              >
                 {item.title}
               </Typography>
             ))}
